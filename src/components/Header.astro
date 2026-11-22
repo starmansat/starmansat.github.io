@@ -1,0 +1,95 @@
+---
+import { nav } from '../data/site';
+const path = Astro.url.pathname;
+const current = (href: string) => (path.startsWith(href) ? 'page' : undefined);
+---
+<header class="site-header">
+  <div class="wrap bar">
+    <a href="/" class="brand"><img src="/brand/logo-white.svg" alt="StarmanSat home" width="178" height="30" /></a>
+
+    <nav aria-label="Main" class="desktop">
+      <ul>
+        {nav.map((item) => (
+          <li class={item.children ? 'has-menu' : undefined}>
+            <a href={item.href} aria-current={current(item.href)}>{item.label}</a>
+            {item.children && (
+              <ul class="menu">
+                {item.children.map((c) => <li><a href={c.href} aria-current={current(c.href)}>{c.label}</a></li>)}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <a class="btn cta" href="/contact/">Talk to us</a>
+
+    <details class="mobile">
+      <summary aria-label="Menu"><span></span></summary>
+      <nav aria-label="Main mobile">
+        <ul>
+          {nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={current(item.href)}>{item.label}</a>
+              {item.children && (
+                <ul>{item.children.map((c) => <li><a href={c.href}>{c.label}</a></li>)}</ul>
+              )}
+            </li>
+          ))}
+          <li><a href="/contact/">Talk to us</a></li>
+        </ul>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgb(8 15 22 / 0.88);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar { display: flex; align-items: center; gap: 2rem; min-height: 4.25rem; }
+  .brand { flex: none; }
+  .brand img { height: 26px; width: auto; }
+  ul { list-style: none; padding: 0; }
+  .desktop { margin-left: auto; }
+  .desktop > ul { display: flex; gap: 0.25rem; }
+  .desktop a { color: var(--star); text-decoration: none; }
+  .desktop > ul > li { position: relative; }
+  .desktop > ul > li > a { display: block; padding: 0.6rem 0.75rem; border-radius: 6px; font-weight: 500; }
+  .desktop > ul > li > a:hover, .desktop a[aria-current] { color: var(--cyan); }
+  .menu {
+    position: absolute; left: 0; top: 100%; min-width: 19rem;
+    padding: 0.5rem; background: var(--deep); border: 1px solid var(--line); border-radius: 10px;
+    visibility: hidden; opacity: 0; transform: translateY(4px); transition: opacity 0.12s, transform 0.12s, visibility 0.12s;
+  }
+  .has-menu:hover .menu, .has-menu:focus-within .menu { visibility: visible; opacity: 1; transform: none; }
+  .menu a { display: block; padding: 0.55rem 0.75rem; border-radius: 6px; color: var(--star); }
+  .menu a:hover { background: var(--line); }
+  .cta { min-height: 2.5rem; padding: 0 1.1rem; }
+
+  .mobile { display: none; margin-left: auto; }
+  .mobile summary { list-style: none; cursor: pointer; width: 44px; height: 44px; display: grid; place-items: center; }
+  .mobile summary::-webkit-details-marker { display: none; }
+  .mobile summary span, .mobile summary span::before, .mobile summary span::after {
+    display: block; width: 22px; height: 2px; background: var(--star); position: relative; content: '';
+  }
+  .mobile summary span::before { position: absolute; top: -7px; }
+  .mobile summary span::after { position: absolute; top: 7px; }
+  .mobile[open] summary span { background: transparent; }
+  .mobile[open] summary span::before { top: 0; transform: rotate(45deg); }
+  .mobile[open] summary span::after { top: 0; transform: rotate(-45deg); }
+  .mobile nav {
+    position: absolute; left: 0; right: 0; top: 100%;
+    max-height: calc(100dvh - 4.25rem); overflow-y: auto;
+    background: var(--midnight); border-bottom: 1px solid var(--line); padding: 1rem var(--gutter) 2rem;
+  }
+  .mobile nav a { display: block; padding: 0.6rem 0; color: var(--star); text-decoration: none; font-size: var(--t-lg); font-weight: 600; }
+  .mobile nav ul ul a { font-size: var(--t-base); font-weight: 400; color: var(--muted); padding: 0.35rem 0 0.35rem 1rem; }
+
+  @media (max-width: 1080px) {
+    .desktop, .cta { display: none; }
+    .mobile { display: block; }
+  }
+</style>

@@ -1,0 +1,19 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import ContactBand from '../../components/ContactBand.astro';
+import { industries } from '../../data/site';
+---
+<Base title="Industries" description="Everyone who flies satellites or depends on satellite data, from first-launch startups to long-running government missions.">
+  <PageHero title="Industries" lede="Everyone who flies satellites or depends on satellite data, from first-launch startups to long-running government missions." />
+  <section class="section">
+    <div class="wrap">
+      <ul class="rows">
+        {industries.map((s) => (
+          <li><a href={`/industries/${s.slug}/`}><h3>{s.title}</h3><p>{s.summary}</p></a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+  <ContactBand />
+</Base>

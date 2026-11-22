@@ -1,0 +1,55 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import ContactBand from '../../components/ContactBand.astro';
+
+const posts = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const cases = (await getCollection('caseStudies')).sort((a, b) => a.data.order - b.data.order);
+const fmt = (d: Date) => d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+---
+<Base title="Insights" description="Articles on space operations, flight dynamics and space data, plus examples of how we run engagements.">
+  <PageHero title="Insights" lede="What we have learned flying satellites and building the software and data systems around them." />
+
+  <section class="section">
+    <div class="wrap">
+      <h2 class="h">Articles</h2>
+      <ul class="rows">
+        {posts.map((p) => (
+          <li>
+            <a href={`/insights/${p.id}/`}>
+              <div><h3>{p.data.title}</h3><p class="small meta">{fmt(p.data.date)}, by {p.data.author}</p></div>
+              <p>{p.data.summary}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="h">Example engagements</h2>
+        <p class="muted">How we typically approach common problems, step by step.</p>
+      </div>
+      <ul class="rows">
+        {cases.map((c) => (
+          <li>
+            <a href={`/case-studies/${c.id}/`}>
+              <div><h3>{c.data.title}</h3><p class="small meta">{c.data.industry}</p></div>
+              <p>{c.data.summary}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+  <ContactBand />
+</Base>
+
+<style>
+  .h { font-size: var(--t-2xl); margin-bottom: 1.5rem; }
+  .section-head .h { margin-bottom: 0; }
+  .meta { margin-top: 0.4rem; color: var(--muted); }
+</style>

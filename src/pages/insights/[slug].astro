@@ -1,0 +1,32 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ContactBand from '../../components/ContactBand.astro';
+
+export async function getStaticPaths() {
+  return (await getCollection('blog')).map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+const { post } = Astro.props;
+const { Content } = await render(post);
+const date = post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+---
+<Base title={post.data.title} description={post.data.summary}>
+  <article class="paper">
+    <div class="wrap">
+      <header>
+        <a href="/insights/" class="small">Insights</a>
+        <h1>{post.data.title}</h1>
+        <p class="lede">{post.data.summary}</p>
+        <p class="small muted"><time datetime={post.data.date.toISOString()}>{date}</time>, by {post.data.author}</p>
+      </header>
+      <div class="prose"><Content /></div>
+    </div>
+  </article>
+  <ContactBand />
+</Base>
+
+<style>
+  article { padding-block: clamp(3rem, 7vw, 5rem) var(--space); }
+  header { display: grid; gap: 1rem; max-width: 46rem; margin-bottom: 3rem; }
+  h1 { font-size: var(--t-3xl); }
+</style>

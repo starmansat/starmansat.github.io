@@ -1,0 +1,19 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import ContactBand from '../../components/ContactBand.astro';
+import { solutions } from '../../data/site';
+---
+<Base title="Solutions" description="Packaged engagements with a defined scope, timeline and result, for the problems operators bring us most often.">
+  <PageHero title="Solutions" lede="Packaged engagements with a defined scope, timeline and result, for the problems operators bring us most often." />
+  <section class="section">
+    <div class="wrap">
+      <ul class="rows">
+        {solutions.map((s) => (
+          <li><a href={`/solutions/${s.slug}/`}><h3>{s.title}</h3><p>{s.summary}</p></a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+  <ContactBand />
+</Base>

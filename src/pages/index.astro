@@ -1,0 +1,142 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import GroundTrack from '../components/GroundTrack.astro';
+import ContactBand from '../components/ContactBand.astro';
+import { services, industries, process, team, stack } from '../data/site';
+
+const posts = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 3);
+const initials = (n: string) => n.split(' ').map((p) => p[0]).join('');
+---
+<Base>
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <h1>We keep satellites flying and make their data useful.</h1>
+        <p class="lede">
+          StarmanSat is a Baltimore team of operators and engineers. We run mission operations, flight dynamics,
+          ground software and space-data platforms for satellite operators and the organizations that rely on them.
+        </p>
+        <div class="actions">
+          <a class="btn" href="/contact/">Talk to us</a>
+          <a class="btn btn--ghost" href="/services/">See our services</a>
+        </div>
+      </div>
+      <GroundTrack />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>What we do</h2>
+        <p class="lede">From the spacecraft to the dashboard, we cover the work between launch and value.</p>
+      </div>
+      <ul class="rows">
+        {services.map((s) => (
+          <li><a href={`/services/${s.slug}/`}><h3>{s.title}</h3><p>{s.summary}</p></a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>How an engagement runs</h2>
+        <p class="lede">Every engagement follows the same path, whether it lasts three weeks or three years.</p>
+      </div>
+      <ol class="steps">
+        {process.map((p) => <li><h3>{p.title}</h3><p>{p.text}</p></li>)}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap split">
+      <div>
+        <h2>Who we work with</h2>
+        <p class="lede">Operators who fly satellites, and organizations that depend on what satellites see and send.</p>
+      </div>
+      <ul class="industries">
+        {industries.map((i) => (
+          <li><a href={`/industries/${i.slug}/`}><strong>{i.title}</strong><span>{i.summary}</span></a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap split">
+      <div>
+        <h2>Built on open, proven tools</h2>
+        <p class="lede">We use standard tools your team can hire for and keep running after we leave.</p>
+      </div>
+      <p class="stack">{stack.join(', ')}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Leadership</h2>
+      </div>
+      <ul class="team">
+        {team.map((m) => (
+          <li><span class="avatar" aria-hidden="true">{initials(m.name)}</span><div><h3>{m.name}</h3><p>{m.role}</p></div></li>
+        ))}
+      </ul>
+      <p class="more"><a href="/about/">About StarmanSat</a></p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head"><h2>Latest insights</h2></div>
+      <ul class="rows">
+        {posts.map((p) => (
+          <li><a href={`/insights/${p.id}/`}><h3>{p.data.title}</h3><p>{p.data.summary}</p></a></li>
+        ))}
+      </ul>
+      <p class="more"><a href="/insights/">All insights</a></p>
+    </div>
+  </section>
+
+  <ContactBand />
+</Base>
+
+<style>
+  .hero { padding-top: clamp(3rem, 7vw, 5.5rem); overflow: hidden; }
+  .hero-copy { display: grid; gap: 1.5rem; max-width: 46rem; margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+  .hero-copy .actions { margin-top: 0.5rem; }
+  .hero h1 { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+
+  .steps { list-style: none; padding: 0; counter-reset: step; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+  .steps li { counter-increment: step; display: grid; gap: 0.6rem; align-content: start; padding-top: 1.25rem; border-top: 2px solid var(--line); }
+  .steps li:first-child { border-image: var(--aurora) 1; }
+  .steps h3::before { content: counter(step) '. '; color: var(--cyan); }
+  .steps p { color: var(--muted); }
+  @media (max-width: 900px) { .steps { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .steps { grid-template-columns: 1fr; } }
+
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 3rem 5rem; align-items: start; }
+  .split h2 { margin-bottom: 1rem; }
+  @media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+  .industries { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem 2.5rem; }
+  .industries a { display: grid; gap: 0.3rem; color: inherit; text-decoration: none; }
+  .industries a:hover strong { color: var(--cyan); }
+  .industries span { color: var(--muted); }
+  @media (max-width: 560px) { .industries { grid-template-columns: 1fr; } }
+  .stack { font-size: var(--t-xl); line-height: 1.5; font-weight: 600; max-width: none; }
+
+  .team { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+  .team li { display: flex; gap: 1rem; align-items: center; }
+  .team p { color: var(--muted); }
+  .avatar {
+    flex: none; width: 3.5rem; height: 3.5rem; border-radius: 50%; display: grid; place-items: center;
+    font-weight: 700; color: var(--star); background: var(--deep); border: 1px solid var(--line);
+  }
+  @media (max-width: 800px) { .team { grid-template-columns: 1fr; } }
+  .more { margin-top: 1.5rem; font-weight: 600; }
+</style>

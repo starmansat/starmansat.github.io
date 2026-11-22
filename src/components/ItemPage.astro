@@ -1,0 +1,46 @@
+---
+// Detail page shared by services, industries and solutions.
+import Base from '../layouts/Base.astro';
+import PageHero from './PageHero.astro';
+import ContactBand from './ContactBand.astro';
+import type { Item } from '../data/site';
+
+interface Props {
+  item: Item;
+  section: { label: string; href: string };
+  pointsHeading: string;
+  related: { heading: string; base: string; items: Item[] };
+}
+const { item, section, pointsHeading, related } = Astro.props;
+---
+<Base title={item.title} description={item.summary}>
+  <PageHero title={item.title} lede={item.summary} crumb={section} />
+  <section class="section">
+    <div class="wrap detail">
+      <div class="body">{item.body.map((p) => <p>{p}</p>)}</div>
+      <aside>
+        <h2>{pointsHeading}</h2>
+        <ul class="bullets">{item.points.map((pt) => <li>{pt}</li>)}</ul>
+      </aside>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <h2 class="rel">{related.heading}</h2>
+      <ul class="rows">
+        {related.items.map((r) => (
+          <li><a href={`${related.base}${r.slug}/`}><h3>{r.title}</h3><p>{r.summary}</p></a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+  <ContactBand />
+</Base>
+
+<style>
+  .detail { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 4rem; }
+  .body { display: grid; gap: 1.25rem; font-size: var(--t-lg); }
+  aside h2 { font-size: var(--t-lg); margin-bottom: 1rem; }
+  .rel { font-size: var(--t-2xl); margin-bottom: 2rem; }
+  @media (max-width: 800px) { .detail { grid-template-columns: 1fr; gap: 2.5rem; } }
+</style>

@@ -1,0 +1,54 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { company } from '../data/site';
+
+const hiring = [
+  { title: 'Introduction call', text: 'A 30-minute conversation about your experience and what you want to work on next.' },
+  { title: 'Technical conversation', text: 'A discussion of real problems from our work with two of our engineers. No puzzles, no whiteboard tricks.' },
+  { title: 'Meet the founders', text: 'Time with our leadership to talk about how we work and where the company is going.' },
+  { title: 'Offer', text: 'We aim to decide within a week of your final conversation.' },
+];
+const roles: { title: string; location: string; href: string }[] = []; // add open roles here
+---
+<Base title="Careers" description="Join StarmanSat: space operations, flight dynamics and space-data engineering work, based in Baltimore.">
+  <PageHero
+    title="Work on the satellites, the software and the data"
+    lede="We are a small team, so everyone works directly with clients, on real missions, from their first week."
+  />
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head"><h2>Open roles</h2></div>
+      {roles.length ? (
+        <ul class="rows">
+          {roles.map((r) => <li><a href={r.href}><h3>{r.title}</h3><p>{r.location}</p></a></li>)}
+        </ul>
+      ) : (
+        <div class="empty">
+          <p>We have no open roles listed right now. We still want to hear from operators, flight dynamics engineers, and software and data engineers who work in space.</p>
+          <a class="btn" href={`mailto:${company.careersEmail}?subject=Introduction`}>Email {company.careersEmail}</a>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head"><h2>How we hire</h2></div>
+      <ol class="steps">
+        {hiring.map((h) => <li><h3>{h.title}</h3><p>{h.text}</p></li>)}
+      </ol>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .empty { display: grid; gap: 1.5rem; justify-items: start; padding: 2rem; border: 1px solid var(--line); border-radius: 12px; background: var(--deep); }
+  .steps { list-style: none; padding: 0; counter-reset: step; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+  .steps li { counter-increment: step; display: grid; gap: 0.6rem; align-content: start; padding-top: 1.25rem; border-top: 2px solid var(--line); }
+  .steps h3::before { content: counter(step) '. '; color: var(--cyan); }
+  .steps p { color: var(--muted); }
+  @media (max-width: 900px) { .steps { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .steps { grid-template-columns: 1fr; } }
+</style>

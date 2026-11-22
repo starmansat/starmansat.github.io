@@ -1,0 +1,15 @@
+---
+import ItemPage from '../../components/ItemPage.astro';
+import { solutions } from '../../data/site';
+
+export function getStaticPaths() {
+  return solutions.map((item) => ({ params: { slug: item.slug }, props: { item } }));
+}
+const { item } = Astro.props;
+---
+<ItemPage
+  item={item}
+  section={{ label: 'Solutions', href: '/solutions/' }}
+  pointsHeading="What you get"
+  related={{ heading: 'Other solutions', base: '/solutions/', items: solutions.filter((s) => s.slug !== item.slug) }}
+/>

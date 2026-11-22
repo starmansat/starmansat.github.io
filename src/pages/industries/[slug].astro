@@ -1,0 +1,15 @@
+---
+import ItemPage from '../../components/ItemPage.astro';
+import { industries } from '../../data/site';
+
+export function getStaticPaths() {
+  return industries.map((item) => ({ params: { slug: item.slug }, props: { item } }));
+}
+const { item } = Astro.props;
+---
+<ItemPage
+  item={item}
+  section={{ label: 'Industries', href: '/industries/' }}
+  pointsHeading="Where we help"
+  related={{ heading: 'Other industries', base: '/industries/', items: industries.filter((s) => s.slug !== item.slug) }}
+/>

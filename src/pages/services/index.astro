@@ -1,0 +1,19 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import ContactBand from '../../components/ContactBand.astro';
+import { services } from '../../data/site';
+---
+<Base title="Services" description="Hands-on engineering and operations across the space segment, the ground segment and the data. Engage one service or combine them.">
+  <PageHero title="Services" lede="Hands-on engineering and operations across the space segment, the ground segment and the data. Engage one service or combine them." />
+  <section class="section">
+    <div class="wrap">
+      <ul class="rows">
+        {services.map((s) => (
+          <li><a href={`/services/${s.slug}/`}><h3>{s.title}</h3><p>{s.summary}</p></a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+  <ContactBand />
+</Base>

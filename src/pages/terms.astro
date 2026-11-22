@@ -1,0 +1,39 @@
+---
+// Basic website terms. Have counsel review before launch.
+import Base from '../layouts/Base.astro';
+import { company } from '../data/site';
+const updated = 'November 22, 2026';
+---
+<Base title="Terms of use" description={`Terms for using the ${company.name} website.`}>
+  <article class="paper">
+    <div class="wrap prose">
+      <h1>Terms of use</h1>
+      <p class="muted">Last updated {updated}</p>
+
+      <p>This website is operated by {company.legalName}. By using it, you agree to these terms.</p>
+
+      <h2>Information on this site</h2>
+      <p>Content on this site is general information about our services. It is not engineering, operational or legal advice for your mission. Work we do for you is governed by a separate written agreement.</p>
+
+      <h2>Intellectual property</h2>
+      <p>The {company.name} name, logo and site content belong to {company.legalName}. You may link to and share pages from this site, but may not reuse our branding or content as your own.</p>
+
+      <h2>Links to other sites</h2>
+      <p>We are not responsible for the content of websites we link to.</p>
+
+      <h2>No warranty</h2>
+      <p>This site is provided as is. We work to keep it accurate and available, but do not guarantee that it is error-free or uninterrupted.</p>
+
+      <h2>Governing law</h2>
+      <p>These terms are governed by the laws of the State of Maryland.</p>
+
+      <h2>Contact</h2>
+      <p>Questions about these terms: <a href={`mailto:${company.email}`}>{company.email}</a>.</p>
+    </div>
+  </article>
+</Base>
+
+<style>
+  article { padding-block: clamp(3rem, 7vw, 5rem) var(--space); }
+  h1 { font-size: var(--t-3xl); }
+</style>

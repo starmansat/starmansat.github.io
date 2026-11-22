@@ -1,0 +1,138 @@
+---
+// Based on the starman-website Global Privacy Policy, with GDPR sections replaced by Argentine
+// Law 25,326 (StarmanSat has no EU establishment or EU operations). Company facts come from
+// src/data/site.ts. Have counsel review wording changes.
+import Base from '../layouts/Base.astro';
+import { company } from '../data/site';
+
+const c = company;
+const p = company.privacy;
+const ar = p.argentina;
+const site = Astro.site!.toString().replace(/\/$/, '');
+const addr = c.address;
+const retention = [
+  ['Contact inquiries', 'For the duration of our business relationship plus the applicable statute of limitations for legal claims.'],
+  ['Marketing communications', 'Until you withdraw consent (opt-out) or request deletion.'],
+  ['Analytics data', 'According to the default retention settings of our analytics providers (e.g., Google Analytics), typically up to 14 months.'],
+  ['Security and access logs', 'Retained on a rolling basis for a period strictly necessary for security monitoring and incident investigation.'],
+  ['Legal/compliance records', 'Retained for the mandatory period prescribed by applicable tax, accounting, or other laws.'],
+];
+---
+<Base title="Privacy policy" description={`How ${c.legalName} collects, uses, discloses and safeguards personal information.`}>
+  <article class="paper">
+    <div class="wrap prose">
+      <h1>{c.legalName} global privacy policy</h1>
+      <p class="muted">Effective date: {p.effectiveDate}<br />Last updated: {p.effectiveDate}</p>
+
+      <h2>1. Introduction and controller identity</h2>
+      <p>{c.legalName} (“{c.name}”, “we”, “us”, or “our”) respects your privacy and is committed to protecting your personal data. This Global Privacy Policy explains how we collect, use, disclose, and safeguard personal information when you visit our website <a href={site}>{site}</a> (the “Website”) or otherwise interact with us.</p>
+      <p>{c.legalName}, headquartered at:</p>
+      <p><strong>{addr.street}, {addr.city}, {addr.region} {addr.postal}, United States</strong></p>
+      <p>is the data controller of your personal data. For personal data collected in Argentina, the controller (<em>responsable de la base de datos</em>) under Argentina’s Personal Data Protection Law No. 25,326 (“Law 25,326”) is our affiliate, {ar.legalName}{ar.cuit && <> (CUIT {ar.cuit})</>}.</p>
+
+      <h2>2. Categories of personal information we collect</h2>
+      <p>In the preceding twelve (12) months, we may have collected the following categories of personal information:</p>
+      <h3>2.1 Identifiers</h3>
+      <ul><li>Full name</li><li>Email address</li><li>Telephone number</li><li>Company or organization name</li></ul>
+      <p>(Collected only when you voluntarily submit information through contact forms or direct communications.)</p>
+      <h3>2.2 Internet or network activity</h3>
+      <ul><li>IP address</li><li>Browser type and version</li><li>Device identifiers</li><li>Pages viewed and interaction data</li></ul>
+      <p>(Collected only after affirmative consent via our cookie consent mechanism.)</p>
+      <h3>2.3 Sensitive personal information</h3>
+      <p>We do not collect sensitive personal information as defined under the CPRA or Law 25,326 (<em>datos sensibles</em>), including but not limited to:</p>
+      <ul><li>Government-issued identification numbers</li><li>Health or biometric data</li><li>Precise geolocation data</li><li>Financial account information</li></ul>
+
+      <h2>3. Purposes of processing and legal bases</h2>
+      <p>We process personal data only where a valid legal basis exists:</p>
+      <h3>3.1 To provide services and respond to inquiries</h3>
+      <ul>
+        <li><strong>Legal basis:</strong> Your express consent, given when you submit our contact form, or the performance of a contract with you.</li>
+        <li><strong>Description:</strong> We process information submitted through our contact forms or communications tools (e.g., Google Workspace, including Google Forms) to respond to inquiries, provide requested information, and manage business communications.</li>
+      </ul>
+      <h3>3.2 Website analytics and performance measurement</h3>
+      <ul>
+        <li><strong>Legal basis:</strong> Consent.</li>
+        <li><strong>Description:</strong> Analytics and similar technologies are deployed only after you explicitly opt in via our consent management platform.</li>
+      </ul>
+      <h3>3.3 Artificial intelligence training disclaimer</h3>
+      <p>{c.name} does not use personal data, business information, website interaction data, or tracking data collected through this Website to train, fine-tune, or otherwise develop proprietary artificial intelligence or machine learning models.</p>
+
+      <h2>4. Cookies, tracking technologies and communication privacy</h2>
+      <p>To comply with the California Invasion of Privacy Act (CIPA) and other applicable laws, {c.name} employs a strict prior-consent architecture:</p>
+      <ul>
+        <li><strong>No automatic loading:</strong> No non-essential cookies, analytics tools, marketing pixels, or similar tracking technologies are deployed upon page load.</li>
+        <li><strong>No “pen register” functionality:</strong> No routing or addressing information (including IP addresses) is recorded or transmitted to third parties before consent is obtained.</li>
+        <li><strong>Strict opt-in:</strong> Tracking technologies activate only after you affirmatively select “Accept” or “Allow” on our cookie banner.</li>
+        <li><strong>Withdrawal:</strong> You may withdraw or modify consent at any time via the “Cookie Settings” link in the Website footer.</li>
+      </ul>
+
+      <h2>5. Notice to California residents (CCPA / CPRA)</h2>
+      <p>If you are a California resident, you have the following rights under the California Consumer Privacy Act as amended by the CPRA:</p>
+      <ul>
+        <li>Right to Know and Access personal information collected about you.</li>
+        <li>Right to Delete personal information.</li>
+        <li>Right to Correct inaccurate personal information.</li>
+        <li>Right to Opt-Out of Sale or Sharing of personal information.</li>
+        <li>Right to Non-Discrimination for exercising your privacy rights.</li>
+      </ul>
+      <p><strong>“Do Not Sell” statement:</strong> We do not sell personal information for monetary consideration. However, sharing IP addresses with analytics providers may constitute “sharing” under CPRA; you may opt out of this by declining cookies.</p>
+      <p><strong>Global Privacy Control (GPC):</strong> We recognize and honor Global Privacy Control (GPC) signals. When detected, GPC is treated as a valid opt-out request, and non-essential tracking technologies are automatically disabled.</p>
+
+      <h2>6. Notice to residents of Argentina (Law 25,326)</h2>
+      <p>If you are located in Argentina, {ar.legalName} is responsible for your personal data, and you have the right to:</p>
+      <ul>
+        <li>Access your personal data free of charge, at intervals of no less than six months unless you show a legitimate interest. We answer access requests within 10 calendar days.</li>
+        <li>Rectify, update, or delete your personal data, or have it kept confidential. We act on these requests within 5 business days.</li>
+        <li>Withdraw your consent at any time.</li>
+      </ul>
+      <h3>6.1 International data transfers</h3>
+      <p>Personal data collected in Argentina may be transferred to {c.legalName} and to our service providers in the United States. By submitting your information, you consent to this transfer. We also protect these transfers with the model contract clauses approved by Argentina’s data protection authority.</p>
+      {ar.databaseRegistration && (<>
+        <h3>6.2 Database registration</h3>
+        <p>{ar.legalName} is registered with the Registro Nacional de Bases de Datos under controller code (<em>código de responsable</em>) {ar.databaseRegistration}.</p>
+      </>)}
+      <h3>{ar.databaseRegistration ? '6.3' : '6.2'} Complaints to the supervisory authority</h3>
+      <p lang="es">El titular de los datos personales tiene la facultad de ejercer el derecho de acceso a los mismos en forma gratuita a intervalos no inferiores a seis meses, salvo que se acredite un interés legítimo al efecto conforme lo establecido en el artículo 14, inciso 3 de la Ley Nº 25.326. La AGENCIA DE ACCESO A LA INFORMACIÓN PÚBLICA, en su carácter de Órgano de Control de la Ley Nº 25.326, tiene la atribución de atender las denuncias y reclamos que interpongan quienes resulten afectados en sus derechos por incumplimiento de las normas vigentes en materia de protección de datos personales.</p>
+      <p>In English: you may access your personal data free of charge at intervals of no less than six months, unless you show a legitimate interest under Article 14(3) of Law 25,326. The Agency for Access to Public Information (AAIP), as the supervisory authority under Law 25,326, handles complaints from anyone whose rights under data protection rules have been infringed.</p>
+
+      <h2>7. Data sharing and disclosure</h2>
+      <p>We do not sell personal data. We may share personal data only with vetted service providers, including cloud hosting and CRM providers, who:</p>
+      <ul><li>Act solely on our instructions.</li><li>Are bound by Data Processing Agreements (DPAs).</li><li>Are prohibited from using data for independent purposes.</li></ul>
+      <p>We may also share personal data between {c.legalName} and {ar.legalName}, which both handle it under this Policy.</p>
+
+      <h2>8. Data retention</h2>
+      <p>We retain personal data only for as long as necessary for the purposes described in this Policy:</p>
+      <table>
+        <thead><tr><th scope="col">Data category</th><th scope="col">Retention criteria</th></tr></thead>
+        <tbody>{retention.map(([k, v]) => <tr><th scope="row">{k}</th><td>{v}</td></tr>)}</tbody>
+      </table>
+
+      <h2>9. Security measures</h2>
+      <p>We implement appropriate technical and organizational security measures, including encryption, access controls, and internal policies designed to protect personal data against unauthorized access, alteration, or disclosure.</p>
+
+      <h2>10. Data provision requirements</h2>
+      <p>Providing personal data is voluntary. However, failure to provide certain information (e.g., contact details) may prevent us from responding to inquiries or providing requested services.</p>
+
+      <h2>11. Automated decision-making</h2>
+      <p>{c.name} does not engage in automated decision-making or profiling that produces legal or similarly significant effects.</p>
+
+      <h2>12. Contact information and exercising your rights</h2>
+      <p>To submit a privacy request or ask questions regarding this Policy:</p>
+      <p><strong>Email:</strong> <a href={`mailto:${c.privacyEmail}`}>{c.privacyEmail}</a></p>
+      <p><strong>Mail:</strong><br />{c.legalName}<br />Attn: Legal &amp; Privacy Department<br />{addr.street}<br />{addr.city}, {addr.region} {addr.postal}, USA</p>
+      {ar.address && <p><strong>Mail (Argentina):</strong><br />{ar.legalName}{ar.cuit && <> (CUIT {ar.cuit})</>}<br />{ar.address}</p>}
+      <p>We will respond to all verifiable requests within statutory timeframes (generally within 30 days, and no later than 45 days where legally permitted; for requests under Law 25,326, within the periods set out in section 6).</p>
+      <p>All other feedback, comments, requests for technical support, and other communications relating to the Website should be directed to: <a href={`mailto:${c.email}`}>{c.email}</a>.</p>
+      <p>This website is operated by {c.legalName} (the data controller){p.formation ? `, which is ${p.formation}` : ''}.</p>
+    </div>
+  </article>
+</Base>
+
+<style>
+  article { padding-block: clamp(3rem, 7vw, 5rem) var(--space); }
+  h1 { font-size: var(--t-3xl); }
+  table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+  th, td { text-align: left; vertical-align: top; padding: 0.75rem 1rem 0.75rem 0; border-bottom: 1px solid #d5dde5; }
+  thead th { color: var(--ink-muted); font-weight: 600; }
+  tbody th { font-weight: 600; width: 32%; }
+</style>

@@ -1,0 +1,69 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import ContactBand from '../components/ContactBand.astro';
+import { company, team } from '../data/site';
+
+const principles = [
+  { title: 'Operations first', text: 'Everything we build is judged by whether it makes the next pass safer and the next anomaly shorter.' },
+  { title: 'Open and handed over', text: 'We use open, standard tools and document as we go, so your team can own what we build.' },
+  { title: 'Show the evidence', text: 'Analyses come with their assumptions and inputs, so decisions can be checked and repeated.' },
+  { title: 'Small, senior teams', text: 'You work directly with the engineers doing the work, not a layer of account managers.' },
+];
+const initials = (n: string) => n.split(' ').map((p) => p[0]).join('');
+---
+<Base title="About" description="StarmanSat is a space operations and space-data engineering company based in Baltimore, Maryland.">
+  <PageHero
+    title="Operators and engineers for the space industry"
+    lede={`${company.name} is the trading name of ${company.legalName}, based in Baltimore, Maryland. We help satellite operators run safe, efficient missions and help everyone who depends on satellites get value from their data.`}
+  />
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head"><h2>How we work</h2></div>
+      <ul class="principles">
+        {principles.map((p) => <li><h3>{p.title}</h3><p>{p.text}</p></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="leadership">
+    <div class="wrap">
+      <div class="section-head"><h2>Leadership</h2></div>
+      <ul class="team">
+        {team.map((m) => (
+          <li><span class="avatar" aria-hidden="true">{initials(m.name)}</span><div><h3>{m.name}</h3><p>{m.role}</p></div></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap split">
+      <h2>Visit us</h2>
+      <address>
+        {company.legalName}<br />
+        {company.address.street}<br />
+        {company.address.city}, {company.address.region} {company.address.postal}<br />
+        <a href={`mailto:${company.email}`}>{company.email}</a>
+      </address>
+    </div>
+  </section>
+
+  <ContactBand />
+</Base>
+
+<style>
+  .principles { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem 4rem; }
+  .principles li { display: grid; gap: 0.5rem; }
+  .principles p { color: var(--muted); }
+  @media (max-width: 720px) { .principles { grid-template-columns: 1fr; } }
+  .team { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+  .team li { display: flex; gap: 1rem; align-items: center; }
+  .team p { color: var(--muted); }
+  .avatar { flex: none; width: 3.5rem; height: 3.5rem; border-radius: 50%; display: grid; place-items: center; font-weight: 700; background: var(--deep); border: 1px solid var(--line); }
+  @media (max-width: 800px) { .team { grid-template-columns: 1fr; } }
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 2rem; }
+  address { font-style: normal; font-size: var(--t-lg); line-height: 1.7; }
+  @media (max-width: 720px) { .split { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,169 @@
+---
+// Simulated LEO ground track over a world map. Land outlines are converted to an SVG path at
+// build time (equirectangular, 2 px per degree), so the client only runs the orbit math.
+import { feature } from 'topojson-client';
+import land110 from 'world-atlas/land-110m.json';
+import { company } from '../data/site';
+
+const W = 720, H = 360;
+const px = (lon: number, lat: number) => `${((lon + 180) * 2).toFixed(1)},${((90 - lat) * 2).toFixed(1)}`;
+const land = feature(land110 as any, (land110 as any).objects.land) as any;
+const rings: number[][][] = land.features.flatMap((f: any) =>
+  f.geometry.type === 'Polygon' ? f.geometry.coordinates : f.geometry.coordinates.flat(),
+);
+// Fill outlines, but break any edge that jumps across the antimeridian (it would streak across the map).
+const landPath = rings
+  .map((r) => r.map(([lon, lat], i) => (i && Math.abs(lon - r[i - 1][0]) > 180 ? 'M' : i ? 'L' : 'M') + px(lon, lat)).join(''))
+  .join('');
+const { lat, lon } = company.location;
+const [gx, gy] = px(lon, lat).split(',');
+const lats = [-60, -30, 0, 30, 60];
+const lons = [-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150];
+---
+<figure class="track" data-lat={lat} data-lon={lon}>
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="gt-title">
+    <title id="gt-title">Simulated satellite ground track over a world map, with the StarmanSat Baltimore office marked</title>
+    <defs>
+      <linearGradient id="gt-aurora" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={W} y2="0">
+        <stop offset="0" stop-color="#0ADAF2" /><stop offset="0.58" stop-color="#5362FF" /><stop offset="1" stop-color="#B94FEA" />
+      </linearGradient>
+    </defs>
+    <g class="grid">
+      {lats.map((l) => <line x1="0" x2={W} y1={(90 - l) * 2} y2={(90 - l) * 2} />)}
+      {lons.map((l) => <line y1="0" y2={H} x1={(l + 180) * 2} x2={(l + 180) * 2} />)}
+    </g>
+    <path class="land" d={landPath} />
+    <path class="footprint" />
+    <path class="past" />
+    <path class="future" />
+    <g class="station" transform={`translate(${gx} ${gy})`}>
+      <circle r="9" class="ring" /><circle r="3" />
+    </g>
+    <g class="sat"><circle r="10" class="halo" /><circle r="4" /></g>
+  </svg>
+  <figcaption>
+    <dl class="readout">
+      <div><dt>UTC</dt><dd data-k="utc">--:--:--</dd></div>
+      <div><dt>Latitude</dt><dd data-k="lat">--</dd></div>
+      <div><dt>Longitude</dt><dd data-k="lon">--</dd></div>
+      <div><dt>Altitude</dt><dd data-k="alt">--</dd></div>
+      <div class="pass"><dt>Next pass over Baltimore</dt><dd data-k="pass">--</dd></div>
+    </dl>
+    <p class="note">Simulated orbit: 51.6° inclination, 92.7-minute period.</p>
+  </figcaption>
+</figure>
+
+<script>
+  // Circular orbit on a spherical Earth: good enough to look right, not for operations.
+  const MU = 398600.4418, RE = 6371, PERIOD = 5562, INC = (51.6 * Math.PI) / 180;
+  const OMEGA_E = (2 * Math.PI) / 86164.0905;
+  const EPOCH = Date.UTC(2026, 0, 1) / 1000;
+  const A = Math.cbrt((MU * PERIOD * PERIOD) / (4 * Math.PI * Math.PI));
+  const MIN_ELEV = (10 * Math.PI) / 180;
+  const rad = Math.PI / 180;
+
+  function subPoint(t: number) {
+    const u = ((2 * Math.PI) * (t - EPOCH)) / PERIOD;
+    const lat = Math.asin(Math.sin(INC) * Math.sin(u));
+    let lon = Math.atan2(Math.cos(INC) * Math.sin(u), Math.cos(u)) - OMEGA_E * (t - EPOCH);
+    lon = ((lon + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+    return { lat, lon };
+  }
+  function ecef(lat: number, lon: number, r: number) {
+    return [r * Math.cos(lat) * Math.cos(lon), r * Math.cos(lat) * Math.sin(lon), r * Math.sin(lat)];
+  }
+  function elevation(t: number, gLat: number, gLon: number) {
+    const s = subPoint(t), sat = ecef(s.lat, s.lon, A), g = ecef(gLat, gLon, RE);
+    const d = [sat[0] - g[0], sat[1] - g[1], sat[2] - g[2]];
+    const dn = Math.hypot(d[0], d[1], d[2]);
+    return Math.asin((d[0] * g[0] + d[1] * g[1] + d[2] * g[2]) / (dn * RE));
+  }
+  const X = (lon: number) => (lon / rad + 180) * 2, Y = (lat: number) => (90 - lat / rad) * 2;
+  function trackPath(t0: number, t1: number) {
+    let d = '', prev: number | null = null;
+    for (let t = t0; t <= t1; t += 20) {
+      const p = subPoint(t), x = X(p.lon), y = Y(p.lat);
+      d += (prev === null || Math.abs(x - prev) > 360 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
+      prev = x;
+    }
+    return d;
+  }
+  function footprint(lat: number, lon: number) {
+    // Ground circle where the satellite is above MIN_ELEV.
+    const lam = Math.acos((RE / A) * Math.cos(MIN_ELEV)) - MIN_ELEV;
+    let d = '', prev: number | null = null;
+    for (let b = 0; b <= 360; b += 6) {
+      const br = b * rad;
+      const la = Math.asin(Math.sin(lat) * Math.cos(lam) + Math.cos(lat) * Math.sin(lam) * Math.cos(br));
+      let lo = lon + Math.atan2(Math.sin(br) * Math.sin(lam) * Math.cos(lat), Math.cos(lam) - Math.sin(lat) * Math.sin(la));
+      lo = ((lo + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+      const x = X(lo);
+      d += (prev === null || Math.abs(x - prev) > 360 ? 'M' : 'L') + x.toFixed(1) + ',' + Y(la).toFixed(1);
+      prev = x;
+    }
+    return d;
+  }
+  function nextPass(now: number, gLat: number, gLon: number) {
+    if (elevation(now, gLat, gLon) > MIN_ELEV) return 0;
+    for (let t = now + 30; t < now + 2 * 86400; t += 30) if (elevation(t, gLat, gLon) > MIN_ELEV) return t - now;
+    return -1;
+  }
+  const fmtDur = (s: number) => {
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60);
+    return (h ? `${h} h ` : '') + `${String(m).padStart(h ? 2 : 1, '0')} min ${String(sec).padStart(2, '0')} s`;
+  };
+  const deg = (v: number, pos: string, neg: string) => `${Math.abs(v / rad).toFixed(2)}° ${v >= 0 ? pos : neg}`;
+
+  for (const fig of document.querySelectorAll<HTMLElement>('figure.track')) {
+    const gLat = Number(fig.dataset.lat) * rad, gLon = Number(fig.dataset.lon) * rad;
+    const $ = (s: string) => fig.querySelector(s)!;
+    const out = (k: string, v: string) => (fig.querySelector(`[data-k="${k}"]`)!.textContent = v);
+    out('alt', `${Math.round(A - RE)} km`);
+    let passAt = 0, lastTrack = 0;
+    const tick = () => {
+      const now = Date.now() / 1000, p = subPoint(now);
+      $('.sat').setAttribute('transform', `translate(${X(p.lon).toFixed(1)} ${Y(p.lat).toFixed(1)})`);
+      $('.footprint').setAttribute('d', footprint(p.lat, p.lon));
+      if (now - lastTrack > 20) {
+        $('.past').setAttribute('d', trackPath(now - PERIOD, now));
+        $('.future').setAttribute('d', trackPath(now, now + PERIOD * 1.5));
+        lastTrack = now;
+      }
+      out('utc', new Date(now * 1000).toISOString().slice(11, 19));
+      out('lat', deg(p.lat, 'N', 'S'));
+      out('lon', deg(p.lon, 'E', 'W'));
+      if (now >= passAt) {
+        const s = nextPass(now, gLat, gLon);
+        passAt = s === 0 ? now + 30 : now + s;
+        fig.classList.toggle('overhead', s === 0);
+      }
+      out('pass', fig.classList.contains('overhead') ? 'Overhead now' : fmtDur(passAt - now));
+    };
+    tick();
+    setInterval(tick, 1000);
+  }
+</script>
+
+<style>
+  .track { margin: 0; }
+  svg { width: 100%; height: auto; }
+  .grid line { stroke: var(--line); stroke-width: 0.6; }
+  .land { fill: #16283a; stroke: #24394f; stroke-width: 0.5; }
+  .footprint { fill: rgb(10 218 242 / 0.07); stroke: rgb(10 218 242 / 0.35); stroke-width: 0.8; }
+  .past { fill: none; stroke: url(#gt-aurora); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .future { fill: none; stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 5; opacity: 0.7; }
+  .sat circle { fill: #fff; }
+  .sat .halo { fill: rgb(10 218 242 / 0.25); }
+  .station circle { fill: var(--purple); }
+  .station .ring { fill: none; stroke: var(--purple); stroke-width: 1.2; }
+  .overhead .station .ring { stroke: var(--cyan); animation: ping 1.6s ease-out infinite; transform-origin: center; transform-box: fill-box; }
+  @keyframes ping { from { transform: scale(0.6); opacity: 1; } to { transform: scale(2.2); opacity: 0; } }
+
+  figcaption { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; margin-top: 1rem; }
+  .readout { display: flex; flex-wrap: wrap; gap: 0.75rem 2rem; }
+  .readout div { display: grid; gap: 0.15rem; }
+  dt { font-size: var(--t-sm); color: var(--muted); }
+  dd { font-family: var(--mono); font-size: var(--t-base); font-variant-numeric: tabular-nums; color: var(--star); }
+  .pass dd { color: var(--cyan); }
+  .note { font-size: var(--t-sm); color: var(--muted); }
+</style>

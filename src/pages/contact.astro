@@ -1,0 +1,132 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { company, services } from '../data/site';
+---
+<Base title="Contact" description="Talk to StarmanSat about mission operations, flight dynamics, ground software or space data.">
+  <PageHero title="Talk to us" lede="Tell us a little about your mission and what you need. We reply within one business day." />
+
+  <section class="section">
+    <div class="wrap layout">
+      <form
+        id="contact"
+        method="post"
+        novalidate
+        data-email={company.email}
+        data-gform={company.googleForm.id ? `https://docs.google.com/forms/d/e/${company.googleForm.id}/formResponse` : undefined}
+        data-fields={JSON.stringify(company.googleForm.fields)}
+      >
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" name="name" autocomplete="name" required />
+        </div>
+        <div class="field">
+          <label for="email">Work email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required />
+        </div>
+        <div class="field">
+          <label for="org">Organization <span class="opt">(optional)</span></label>
+          <input id="org" name="organization" autocomplete="organization" />
+        </div>
+        <div class="field">
+          <label for="topic">What can we help with?</label>
+          <select id="topic" name="topic">
+            {services.map((s) => <option>{s.title}</option>)}
+            <option>Something else</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="6" required></textarea>
+        </div>
+        <div class="consent">
+          <input id="consent" type="checkbox" required />
+          <label for="consent">I agree that {company.name} may use these details to reply to me, as described in the <a href="/privacy-policy/">privacy policy</a>.</label>
+        </div>
+        <button class="btn" type="submit">Send message</button>
+        <p class="status" role="status" aria-live="polite"></p>
+      </form>
+
+      <aside>
+        <h2>Other ways to reach us</h2>
+        <p><a href={`mailto:${company.email}`}>{company.email}</a></p>
+        <address>
+          {company.legalName}<br />
+          {company.address.street}<br />
+          {company.address.city}, {company.address.region} {company.address.postal}
+        </address>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('#contact')!;
+  const status = form.querySelector<HTMLElement>('.status')!;
+  const button = form.querySelector<HTMLButtonElement>('button')!;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const missing = [...form.querySelectorAll<HTMLInputElement>('[required]')].find((f) => !f.checkValidity());
+    if (missing) {
+      const label = form.querySelector(`label[for="${missing.id}"]`)?.textContent?.trim();
+      status.textContent =
+        missing.type === 'checkbox' ? 'Tick the box to agree to the privacy policy.'
+        : missing.type === 'email' && missing.value ? 'Enter a valid email address.'
+        : `Fill in ${label?.toLowerCase()}.`;
+      missing.focus();
+      return;
+    }
+    const data = new FormData(form);
+    if (!form.dataset.gform) {
+      // No form backend configured: open the visitor's email app with the message filled in.
+      const body = `${data.get('message')}\n\n${data.get('name')}\n${data.get('organization') || ''}\n${data.get('email')}`;
+      location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(String(data.get('topic')))}&body=${encodeURIComponent(body)}`;
+      status.textContent = 'Your email app should open with your message. Send it from there.';
+      return;
+    }
+    button.disabled = true;
+    status.textContent = 'Sending…';
+    try {
+      // Map our field names to the Google Form's entry IDs.
+      const fields: Record<string, string> = JSON.parse(form.dataset.fields!);
+      const body = new URLSearchParams();
+      for (const [name, entry] of Object.entries(fields)) body.append(entry, String(data.get(name) ?? ''));
+      // Google doesn't allow reading the response cross-origin (no-cors), so only network failures are detectable.
+      // credentials: 'omit' keeps the visitor's Google cookies out of the request.
+      await fetch(form.dataset.gform!, { method: 'POST', mode: 'no-cors', credentials: 'omit', body });
+      form.reset();
+      status.textContent = 'Message sent. We will reply within one business day.';
+    } catch {
+      status.innerHTML = '';
+      status.append('Your message was not sent. Try again, or email ');
+      const a = Object.assign(document.createElement('a'), { href: `mailto:${form.dataset.email}`, textContent: form.dataset.email });
+      status.append(a, ' directly.');
+    } finally {
+      button.disabled = false;
+    }
+  });
+</script>
+
+<style>
+  .layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 4rem; }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+  form { display: grid; gap: 1.25rem; max-width: 36rem; }
+  .field { display: grid; gap: 0.4rem; }
+  label { font-weight: 600; }
+  .opt { font-weight: 400; color: var(--muted); }
+  input, select, textarea {
+    font: inherit; color: var(--star); background: var(--deep);
+    border: 1px solid var(--line); border-radius: 8px; padding: 0.75rem 0.9rem; width: 100%;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--cyan); outline: none; box-shadow: 0 0 0 3px rgb(10 218 242 / 0.2); }
+  .consent { display: flex; gap: 0.75rem; align-items: start; }
+  .consent input { width: 1.15rem; height: 1.15rem; margin-top: 0.2rem; flex: none; accent-color: var(--cyan); }
+  .consent label { font-weight: 400; color: var(--muted); }
+  button { justify-self: start; cursor: pointer; }
+  button:disabled { opacity: 0.6; cursor: progress; }
+  .status { min-height: 1.6em; color: var(--cyan); }
+  aside { display: grid; gap: 1rem; align-content: start; }
+  aside h2 { font-size: var(--t-lg); }
+  address { font-style: normal; color: var(--muted); line-height: 1.7; }
+</style>

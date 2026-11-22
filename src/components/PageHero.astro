@@ -1,0 +1,20 @@
+---
+interface Props { title: string; lede?: string; crumb?: { label: string; href: string } }
+const { title, lede, crumb } = Astro.props;
+---
+<section class="page-hero">
+  <div class="wrap">
+    {crumb && <nav aria-label="Breadcrumb"><a href={crumb.href}>{crumb.label}</a></nav>}
+    <h1>{title}</h1>
+    {lede && <p class="lede">{lede}</p>}
+    <slot />
+  </div>
+</section>
+
+<style>
+  .page-hero { padding-block: clamp(3.5rem, 8vw, 6rem) clamp(2.5rem, 6vw, 4rem); border-bottom: 1px solid var(--line); }
+  .page-hero .wrap { display: grid; gap: 1.25rem; }
+  h1 { max-width: 22ch; }
+  nav a { color: var(--muted); font-size: var(--t-sm); text-decoration: none; }
+  nav a:hover { color: var(--cyan); }
+</style>

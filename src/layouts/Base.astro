@@ -1,0 +1,57 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { company } from '../data/site';
+
+interface Props { title?: string; description?: string; }
+const { title, description = company.description } = Astro.props;
+const fullTitle = title ? `${title} | ${company.name}` : `${company.name}: ${company.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const org = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: company.name,
+  legalName: company.legalName,
+  url: Astro.site?.toString(),
+  logo: new URL('/brand/logo-black.svg', Astro.site).toString(),
+  email: company.email,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: company.address.street,
+    addressLocality: company.address.city,
+    addressRegion: company.address.region,
+    postalCode: company.address.postal,
+    addressCountry: company.address.country,
+  },
+};
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href="/fonts/HankenGrotesk-Variable.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#080F16" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL('/og.png', Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify(org)} />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <Header />
+    <main id="main"><slot /></main>
+    <Footer />
+  </body>
+</html>

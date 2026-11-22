@@ -1,0 +1,38 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ContactBand from '../../components/ContactBand.astro';
+
+export async function getStaticPaths() {
+  return (await getCollection('caseStudies')).map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+<Base title={entry.data.title} description={entry.data.summary}>
+  <article class="paper">
+    <div class="wrap">
+      <header>
+        <a href="/insights/" class="small">Example engagements</a>
+        <h1>{entry.data.title}</h1>
+        <p class="lede">{entry.data.summary}</p>
+        <dl>
+          <div><dt>Industry</dt><dd>{entry.data.industry}</dd></div>
+          <div><dt>Services</dt><dd>{entry.data.services.join(', ')}</dd></div>
+        </dl>
+        <p class="small muted">This is an example of how we approach this kind of problem, not a record of a specific client engagement.</p>
+      </header>
+      <div class="prose"><Content /></div>
+    </div>
+  </article>
+  <ContactBand heading="Facing something similar?" />
+</Base>
+
+<style>
+  article { padding-block: clamp(3rem, 7vw, 5rem) var(--space); }
+  header { display: grid; gap: 1rem; max-width: 46rem; margin-bottom: 3rem; }
+  h1 { font-size: var(--t-3xl); }
+  dl { display: flex; flex-wrap: wrap; gap: 0.5rem 2.5rem; }
+  dt { font-size: var(--t-sm); color: var(--ink-muted); }
+  dd { font-weight: 600; }
+</style>
